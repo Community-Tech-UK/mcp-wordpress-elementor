@@ -1,0 +1,45 @@
+{
+  "name": "mcp-wordpress-elementor",
+  "version": "1.0.0",
+  "description": "A Model Context Protocol server for WordPress + Elementor page building.",
+  "type": "module",
+  "main": "./build/server.js",
+  "bin": {
+    "mcp-wordpress-elementor": "./build/cli.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "dev": "tsx watch src/server.ts",
+    "start": "node ./build/server.js",
+    "clean": "rimraf build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:smoke": "SMOKE_TEST=1 vitest run src/__tests__/smoke/"
+  },
+  "keywords": [
+    "wordpress",
+    "elementor",
+    "mcp",
+    "server",
+    "claude",
+    "ai"
+  ],
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.4.1",
+    "axios": "^1.6.7",
+    "dotenv": "^16.4.5",
+    "form-data": "^4.0.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "rimraf": "^5.0.5",
+    "tsx": "^4.7.1",
+    "typescript": "^5.3.3",
+    "vitest": "^3.0.0"
+  }
+}
