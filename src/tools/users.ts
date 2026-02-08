@@ -3,8 +3,8 @@ import { z } from 'zod';
 
 // Zod schemas
 const listUsersSchema = z.object({
-  page: z.number().optional().describe('Page number of the collection'),
-  per_page: z.number().min(1).max(100).optional().describe('Maximum number of items to return (1-100)'),
+  page: z.coerce.number().optional().describe('Page number of the collection'),
+  per_page: z.coerce.number().min(1).max(100).optional().describe('Maximum number of items to return (1-100)'),
   search: z.string().optional().describe('Limit results to those matching a string'),
   context: z.enum(['view', 'embed', 'edit']).optional().describe('Scope under which the request is made; determines fields present in response'),
   orderby: z.enum(['id', 'include', 'name', 'registered_date', 'slug', 'email', 'url']).optional().describe('Sort collection by user attribute'),
@@ -13,7 +13,7 @@ const listUsersSchema = z.object({
 });
 
 const getUserSchema = z.object({
-  id: z.number().describe('Unique identifier for the user'),
+  id: z.coerce.number().describe('Unique identifier for the user'),
   context: z.enum(['view', 'embed', 'edit']).optional().describe('Scope under which the request is made; determines fields present in response'),
 }).strict();
 
@@ -33,7 +33,7 @@ const createUserSchema = z.object({
 }).strict();
 
 const updateUserSchema = z.object({
-  id: z.number().describe('Unique identifier for the user'),
+  id: z.coerce.number().describe('Unique identifier for the user'),
   username: z.string().optional().describe('Login name for the user'),
   name: z.string().optional().describe('Display name for the user'),
   first_name: z.string().optional().describe('First name for the user'),
@@ -49,9 +49,9 @@ const updateUserSchema = z.object({
 }).strict();
 
 const deleteUserSchema = z.object({
-  id: z.number().describe('Unique identifier for the user'),
+  id: z.coerce.number().describe('Unique identifier for the user'),
   force: z.boolean().optional().describe('Whether to bypass Trash and force deletion'),
-  reassign: z.number().optional().describe('Reassign the deleted user\'s posts and links to this user ID'),
+  reassign: z.coerce.number().optional().describe('Reassign the deleted user\'s posts and links to this user ID'),
 }).strict();
 
 // Tool definitions

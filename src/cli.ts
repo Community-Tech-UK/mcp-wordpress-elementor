@@ -8,7 +8,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 function checkEnvironmentVariables(): void {
-  // Accept either naming convention
+  // Multi-site mode: sites file or inline JSON provides all credentials
+  if (process.env.WORDPRESS_SITES_FILE || process.env.WORDPRESS_SITES) {
+    return;
+  }
+
+  // Single-site mode: accept either naming convention
   const hasUrl =
     process.env.WORDPRESS_API_URL || process.env.WORDPRESS_BASE_URL;
   const hasUser = process.env.WORDPRESS_USERNAME;

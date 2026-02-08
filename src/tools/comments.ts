@@ -3,14 +3,14 @@ import { z } from 'zod';
 
 // Zod schemas
 const listCommentsSchema = z.object({
-  page: z.number().optional().describe('Page number of the collection'),
-  per_page: z.number().min(1).max(100).optional().describe('Maximum number of items to return (1-100)'),
+  page: z.coerce.number().optional().describe('Page number of the collection'),
+  per_page: z.coerce.number().min(1).max(100).optional().describe('Maximum number of items to return (1-100)'),
   search: z.string().optional().describe('Limit results to those matching a string'),
   after: z.string().optional().describe('Limit results to comments published after a given ISO8601 date'),
-  author: z.union([z.number(), z.array(z.number())]).optional().describe('Limit results to comments assigned to specific authors'),
+  author: z.union([z.coerce.number(), z.array(z.coerce.number())]).optional().describe('Limit results to comments assigned to specific authors'),
   author_email: z.string().email().optional().describe('Limit results to comments assigned to a specific author email'),
-  author_exclude: z.array(z.number()).optional().describe('Ensure results exclude comments assigned to specific authors'),
-  post: z.number().optional().describe('Limit results to comments of a specific post ID'),
+  author_exclude: z.array(z.coerce.number()).optional().describe('Ensure results exclude comments assigned to specific authors'),
+  post: z.coerce.number().optional().describe('Limit results to comments of a specific post ID'),
   status: z.enum(['approve', 'hold', 'spam', 'trash']).optional().describe('Limit results to comments with specific status'),
   type: z.string().optional().describe('Limit results to comments of a specific type'),
   orderby: z.enum(['date', 'date_gmt', 'id', 'include', 'post', 'parent', 'type']).optional().describe('Sort collection by comment attribute'),
@@ -18,34 +18,34 @@ const listCommentsSchema = z.object({
 });
 
 const getCommentSchema = z.object({
-  id: z.number().describe('Unique identifier for the comment'),
+  id: z.coerce.number().describe('Unique identifier for the comment'),
 }).strict();
 
 const createCommentSchema = z.object({
-  post: z.number().describe('The ID of the associated post'),
-  author: z.number().optional().describe('The ID of the user object, if author was a user'),
+  post: z.coerce.number().describe('The ID of the associated post'),
+  author: z.coerce.number().optional().describe('The ID of the user object, if author was a user'),
   author_name: z.string().optional().describe('Display name for the comment author'),
   author_email: z.string().email().optional().describe('Email address for the comment author'),
   author_url: z.string().url().optional().describe('URL for the comment author'),
   content: z.string().describe('The content for the comment'),
-  parent: z.number().optional().describe('The ID for the parent of the comment'),
+  parent: z.coerce.number().optional().describe('The ID for the parent of the comment'),
   status: z.enum(['approve', 'hold']).optional().describe('State of the comment'),
 }).strict();
 
 const updateCommentSchema = z.object({
-  id: z.number().describe('Unique identifier for the comment'),
-  post: z.number().optional().describe('The ID of the associated post'),
-  author: z.number().optional().describe('The ID of the user object, if author was a user'),
+  id: z.coerce.number().describe('Unique identifier for the comment'),
+  post: z.coerce.number().optional().describe('The ID of the associated post'),
+  author: z.coerce.number().optional().describe('The ID of the user object, if author was a user'),
   author_name: z.string().optional().describe('Display name for the comment author'),
   author_email: z.string().email().optional().describe('Email address for the comment author'),
   author_url: z.string().url().optional().describe('URL for the comment author'),
   content: z.string().optional().describe('The content for the comment'),
-  parent: z.number().optional().describe('The ID for the parent of the comment'),
+  parent: z.coerce.number().optional().describe('The ID for the parent of the comment'),
   status: z.enum(['approve', 'hold', 'spam', 'trash']).optional().describe('State of the comment'),
 }).strict();
 
 const deleteCommentSchema = z.object({
-  id: z.number().describe('Unique identifier for the comment'),
+  id: z.coerce.number().describe('Unique identifier for the comment'),
   force: z.boolean().optional().describe('Whether to bypass Trash and force deletion'),
 }).strict();
 

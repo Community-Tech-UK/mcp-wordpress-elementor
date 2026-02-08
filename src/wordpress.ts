@@ -6,6 +6,130 @@ import { fileURLToPath } from 'url';
 // Global WordPress API client instance
 let wpClient: AxiosInstance | undefined;
 
+// --- Multi-site support ---
+
+export interface SiteConfig {
+  url: string;
+  username: string;
+  password: string;
+}
+
+/** Registry of configured sites (empty in single-site mode). */
+const siteConfigs = new Map<string, SiteConfig>();
+
+/** Name of the currently active site (undefined in single-site mode). */
+let activeSiteName: string | undefined;
+
+/** Callbacks invoked when the active site changes, so modules can drop cached clients. */
+const ctInvalidationCallbacks: Array<() => void> = [];
+
+/** Register a callback that will be called when the active site changes. */
+export function registerCtInvalidation(cb: () => void): void {
+  ctInvalidationCallbacks.push(cb);
+}
+
+/** Returns true if multi-site configuration is present. */
+export function hasMultiSiteConfig(): boolean {
+  return !!(process.env.WORDPRESS_SITES_FILE || process.env.WORDPRESS_SITES);
+}
+
+/** Load site configs from WORDPRESS_SITES_FILE or WORDPRESS_SITES env var. */
+function loadSiteConfigs(): void {
+  let raw: string | undefined;
+
+  if (process.env.WORDPRESS_SITES_FILE) {
+    const filePath = process.env.WORDPRESS_SITES_FILE;
+    if (!fs.existsSync(filePath)) {
+      throw new Error(`Sites file not found: ${filePath}`);
+    }
+    raw = fs.readFileSync(filePath, 'utf-8');
+  } else if (process.env.WORDPRESS_SITES) {
+    raw = process.env.WORDPRESS_SITES;
+  }
+
+  if (!raw) return;
+
+  let parsed: Record<string, { url: string; username: string; password: string }>;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error('Failed to parse site configurations as JSON');
+  }
+
+  for (const [name, config] of Object.entries(parsed)) {
+    if (!config.url || !config.username || !config.password) {
+      throw new Error(`Site "${name}" is missing required fields (url, username, password)`);
+    }
+    siteConfigs.set(name, {
+      url: config.url.replace(/\/$/, ''),
+      username: config.username,
+      password: config.password,
+    });
+  }
+
+  if (siteConfigs.size === 0) {
+    throw new Error('Sites configuration is empty');
+  }
+}
+
+/** Create an Axios client for a given site config and verify the connection. */
+async function connectToSite(config: SiteConfig): Promise<void> {
+  let baseURL = config.url.endsWith('/') ? config.url : `${config.url}/`;
+  if (!baseURL.includes('/wp-json/wp/v2')) {
+    baseURL = baseURL + 'wp-json/wp/v2/';
+  } else if (!baseURL.endsWith('/')) {
+    baseURL = baseURL + '/';
+  }
+
+  const auth = Buffer.from(`${config.username}:${config.password}`).toString('base64');
+  const axiosConfig: AxiosRequestConfig & { headers: Record<string, string> } = {
+    baseURL,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Basic ${auth}`,
+    },
+  };
+
+  const client = axios.create(axiosConfig);
+
+  try {
+    await client.get('');
+    logToFile(`Successfully connected to ${config.url}`);
+  } catch (error: any) {
+    throw new Error(`Failed to connect to ${config.url}: ${error.message}`);
+  }
+
+  wpClient = client;
+}
+
+/** Switch to a different configured site by name. */
+export async function selectSite(name: string): Promise<void> {
+  const config = siteConfigs.get(name);
+  if (!config) {
+    const available = Array.from(siteConfigs.keys()).join(', ');
+    throw new Error(`Site "${name}" not found. Available sites: ${available}`);
+  }
+
+  await connectToSite(config);
+  activeSiteName = name;
+
+  // Invalidate cached CommunityTech clients
+  for (const cb of ctInvalidationCallbacks) {
+    cb();
+  }
+
+  logToFile(`Switched to site: ${name} (${config.url})`);
+}
+
+/** Return the list of configured sites and which is active. */
+export function listSites(): Array<{ name: string; url: string; active: boolean }> {
+  return Array.from(siteConfigs.entries()).map(([name, config]) => ({
+    name,
+    url: config.url,
+    active: name === activeSiteName,
+  }));
+}
+
 // Resolve log directory relative to this file
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,9 +148,20 @@ export function logToFile(message: string): void {
 
 /**
  * Initialize the WordPress API client with authentication.
- * Supports both InstaWP env var names and our legacy names.
+ * In multi-site mode, loads site configs and auto-connects to the first site.
+ * In single-site mode, uses WORDPRESS_API_URL/USERNAME/PASSWORD env vars.
  */
 export async function initWordPress(): Promise<void> {
+  // Multi-site mode
+  if (hasMultiSiteConfig()) {
+    loadSiteConfigs();
+    const firstName = siteConfigs.keys().next().value as string;
+    await selectSite(firstName);
+    logToFile(`Multi-site mode: connected to "${firstName}" (${siteConfigs.size} sites configured)`);
+    return;
+  }
+
+  // Single-site mode (backwards compatible)
   const apiUrl =
     process.env.WORDPRESS_API_URL || process.env.WORDPRESS_BASE_URL;
   const username = process.env.WORDPRESS_USERNAME;
@@ -74,6 +209,12 @@ export async function initWordPress(): Promise<void> {
 
 /** Returns the base URL of the WordPress site (without /wp-json/wp/v2/). */
 export function getBaseUrl(): string {
+  // In multi-site mode, return the active site's URL
+  if (activeSiteName) {
+    const config = siteConfigs.get(activeSiteName);
+    if (config) return config.url;
+  }
+  // Single-site fallback
   return (
     process.env.WORDPRESS_API_URL ||
     process.env.WORDPRESS_BASE_URL ||

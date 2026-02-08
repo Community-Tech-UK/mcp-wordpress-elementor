@@ -8,16 +8,16 @@ import type { ElementorElement } from '../types/elementor-types.js';
 
 // Schema definitions
 const addWidgetToSectionSchema = z.object({
-  post_id: z.number(),
+  post_id: z.coerce.number(),
   section_id: z.string().optional(),
   column_id: z.string().optional(),
   widget_type: z.string(),
   widget_settings: z.record(z.any()).optional(),
-  position: z.number().optional(),
+  position: z.coerce.number().optional(),
 });
 
 const insertWidgetAtPositionSchema = z.object({
-  post_id: z.number(),
+  post_id: z.coerce.number(),
   widget_type: z.string(),
   widget_settings: z.record(z.any()).optional(),
   target_element_id: z.string(),
@@ -25,34 +25,34 @@ const insertWidgetAtPositionSchema = z.object({
 });
 
 const cloneWidgetSchema = z.object({
-  post_id: z.number(),
+  post_id: z.coerce.number(),
   widget_id: z.string(),
   target_element_id: z.string().optional(),
   insert_position: z.enum(['before', 'after']).optional(),
 });
 
 const moveWidgetSchema = z.object({
-  post_id: z.number(),
+  post_id: z.coerce.number(),
   widget_id: z.string(),
   target_section_id: z.string().optional(),
   target_column_id: z.string().optional(),
-  position: z.number().optional(),
+  position: z.coerce.number().optional(),
 });
 
 const updateWidgetSchema = z.object({
-  post_id: z.number(),
+  post_id: z.coerce.number(),
   widget_id: z.string(),
   widget_settings: z.record(z.any()).optional(),
   widget_content: z.string().optional(),
 });
 
 const getWidgetSchema = z.object({
-  post_id: z.number(),
+  post_id: z.coerce.number(),
   widget_id: z.string(),
 });
 
 const updateSectionSchema = z.object({
-  post_id: z.number(),
+  post_id: z.coerce.number(),
   section_id: z.string(),
   widgets_updates: z.array(z.object({
     widget_id: z.string(),
@@ -62,7 +62,7 @@ const updateSectionSchema = z.object({
 });
 
 const getWidgetContentSchema = z.object({
-  post_id: z.number(),
+  post_id: z.coerce.number(),
   widget_id: z.string(),
 });
 

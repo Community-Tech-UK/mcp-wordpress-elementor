@@ -3,36 +3,36 @@ import { z } from 'zod';
 
 // Zod schemas
 const listCategoriesSchema = z.object({
-  page: z.number().optional().describe('Page number of the collection'),
-  per_page: z.number().min(1).max(100).optional().describe('Maximum number of items to return (1-100)'),
+  page: z.coerce.number().optional().describe('Page number of the collection'),
+  per_page: z.coerce.number().min(1).max(100).optional().describe('Maximum number of items to return (1-100)'),
   search: z.string().optional().describe('Limit results to those matching a string'),
-  parent: z.number().optional().describe('Limit results to categories with a specific parent ID'),
+  parent: z.coerce.number().optional().describe('Limit results to categories with a specific parent ID'),
   orderby: z.enum(['id', 'include', 'name', 'slug', 'count']).optional().describe('Sort collection by category attribute'),
   order: z.enum(['asc', 'desc']).optional().describe('Order sort attribute ascending or descending'),
   hide_empty: z.boolean().optional().describe('Whether to hide categories not assigned to any posts'),
 });
 
 const getCategorySchema = z.object({
-  id: z.number().describe('Unique identifier for the category'),
+  id: z.coerce.number().describe('Unique identifier for the category'),
 }).strict();
 
 const createCategorySchema = z.object({
   name: z.string().describe('HTML title for the category'),
   slug: z.string().optional().describe('An alphanumeric identifier for the category unique to its type'),
   description: z.string().optional().describe('HTML description of the category'),
-  parent: z.number().optional().describe('The ID for the parent of the category'),
+  parent: z.coerce.number().optional().describe('The ID for the parent of the category'),
 }).strict();
 
 const updateCategorySchema = z.object({
-  id: z.number().describe('Unique identifier for the category'),
+  id: z.coerce.number().describe('Unique identifier for the category'),
   name: z.string().optional().describe('HTML title for the category'),
   slug: z.string().optional().describe('An alphanumeric identifier for the category unique to its type'),
   description: z.string().optional().describe('HTML description of the category'),
-  parent: z.number().optional().describe('The ID for the parent of the category'),
+  parent: z.coerce.number().optional().describe('The ID for the parent of the category'),
 }).strict();
 
 const deleteCategorySchema = z.object({
-  id: z.number().describe('Unique identifier for the category'),
+  id: z.coerce.number().describe('Unique identifier for the category'),
   force: z.boolean().optional().describe('Whether to bypass Trash and force deletion'),
 }).strict();
 

@@ -77,42 +77,63 @@ Without it, the 60 WordPress + Elementor page building tools still work fine.
 
 ### Multiple Sites
 
-Add separate entries to `.mcp.json` with different server names:
+Instead of duplicating server entries, use a sites file so a single server instance can switch between sites at runtime.
+
+**1. Create a `sites.json` file:**
+
+```json
+{
+  "my-site": {
+    "url": "https://my-site.com",
+    "username": "admin",
+    "password": "xxxx xxxx xxxx xxxx xxxx xxxx"
+  },
+  "other-site": {
+    "url": "https://other-site.com",
+    "username": "admin",
+    "password": "yyyy yyyy yyyy yyyy yyyy yyyy"
+  }
+}
+```
+
+**2. Point `.mcp.json` at it:**
 
 ```json
 {
   "mcpServers": {
-    "site-one": {
+    "wordpress": {
       "command": "node",
       "args": ["/path/to/mcp-wordpress-elementor/build/cli.js"],
       "env": {
-        "WORDPRESS_API_URL": "https://site-one.com",
-        "WORDPRESS_USERNAME": "admin",
-        "WORDPRESS_PASSWORD": "xxxx xxxx xxxx xxxx"
-      }
-    },
-    "site-two": {
-      "command": "node",
-      "args": ["/path/to/mcp-wordpress-elementor/build/cli.js"],
-      "env": {
-        "WORDPRESS_API_URL": "https://site-two.com",
-        "WORDPRESS_USERNAME": "admin",
-        "WORDPRESS_PASSWORD": "yyyy yyyy yyyy yyyy"
+        "WORDPRESS_SITES_FILE": "/path/to/sites.json"
       }
     }
   }
 }
 ```
 
+The server auto-connects to the first site on startup. Two extra tools become available:
+
+- **`list_sites`** — shows all configured sites and which is active
+- **`select_site`** — switches to a different site by name; all subsequent tool calls target it
+
+Alternatively, pass the JSON inline via `WORDPRESS_SITES` instead of using a file.
+
+If neither `WORDPRESS_SITES_FILE` nor `WORDPRESS_SITES` is set, the server falls back to single-site mode using `WORDPRESS_API_URL`/`WORDPRESS_USERNAME`/`WORDPRESS_PASSWORD`.
+
 ### Environment Variables
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `WORDPRESS_API_URL` | Yes | Your WordPress site URL |
-| `WORDPRESS_USERNAME` | Yes | WordPress username |
-| `WORDPRESS_PASSWORD` | Yes | Application password (also accepts `WORDPRESS_APP_PASSWORD`) |
+| `WORDPRESS_API_URL` | Yes* | Your WordPress site URL |
+| `WORDPRESS_USERNAME` | Yes* | WordPress username |
+| `WORDPRESS_PASSWORD` | Yes* | Application password (also accepts `WORDPRESS_APP_PASSWORD`) |
+| `WORDPRESS_SITES_FILE` | No | Path to a JSON file with multiple site configs (replaces the three above) |
+| `WORDPRESS_SITES` | No | Inline JSON string with multiple site configs (fallback for `WORDPRESS_SITES_FILE`) |
 | `DISABLE_ELEMENTOR` | No | Set `true` to disable 24 page building tools |
 | `DISABLE_ELEMENTOR_GLOBAL_SETTINGS` | No | Set `true` to disable 11 global settings tools |
+
+\* Not required when `WORDPRESS_SITES_FILE` or `WORDPRESS_SITES` is set.
 
 ## Tool Inventory
 

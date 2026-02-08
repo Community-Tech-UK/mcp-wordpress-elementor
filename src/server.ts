@@ -46,9 +46,10 @@ for (const tool of allTools) {
 async function main() {
   logToFile('Starting WordPress + Elementor MCP server...');
 
+  const hasMultiSite = !!(process.env.WORDPRESS_SITES_FILE || process.env.WORDPRESS_SITES);
   const apiUrl =
     process.env.WORDPRESS_API_URL || process.env.WORDPRESS_BASE_URL;
-  if (!apiUrl) {
+  if (!apiUrl && !hasMultiSite) {
     logToFile('Missing WORDPRESS_API_URL. Check your .env or environment.');
     process.exit(1);
   }

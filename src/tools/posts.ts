@@ -3,20 +3,20 @@ import { z } from 'zod';
 
 // Zod schemas
 const listPostsSchema = z.object({
-  page: z.number().optional().describe('Page number of the collection'),
-  per_page: z.number().min(1).max(100).optional().describe('Maximum number of items to return (1-100)'),
+  page: z.coerce.number().optional().describe('Page number of the collection'),
+  per_page: z.coerce.number().min(1).max(100).optional().describe('Maximum number of items to return (1-100)'),
   search: z.string().optional().describe('Limit results to those matching a string'),
   after: z.string().optional().describe('Limit results to posts published after a given ISO8601 date'),
-  author: z.union([z.number(), z.array(z.number())]).optional().describe('Limit results to posts assigned to specific authors'),
-  categories: z.union([z.number(), z.array(z.number())]).optional().describe('Limit results to posts assigned to specific categories'),
-  tags: z.union([z.number(), z.array(z.number())]).optional().describe('Limit results to posts assigned to specific tags'),
+  author: z.union([z.coerce.number(), z.array(z.coerce.number())]).optional().describe('Limit results to posts assigned to specific authors'),
+  categories: z.union([z.coerce.number(), z.array(z.coerce.number())]).optional().describe('Limit results to posts assigned to specific categories'),
+  tags: z.union([z.coerce.number(), z.array(z.coerce.number())]).optional().describe('Limit results to posts assigned to specific tags'),
   status: z.enum(['publish', 'future', 'draft', 'pending', 'private']).optional().describe('Limit results to posts with specific status'),
   orderby: z.enum(['date', 'id', 'include', 'title', 'slug', 'modified']).optional().describe('Sort collection by post attribute'),
   order: z.enum(['asc', 'desc']).optional().describe('Order sort attribute ascending or descending'),
 });
 
 const getPostSchema = z.object({
-  id: z.number().describe('Unique identifier for the post'),
+  id: z.coerce.number().describe('Unique identifier for the post'),
 }).strict();
 
 const createPostSchema = z.object({
@@ -24,30 +24,30 @@ const createPostSchema = z.object({
   content: z.string().describe('The content for the post'),
   status: z.enum(['publish', 'future', 'draft', 'pending', 'private']).optional().default('draft').describe('Post status'),
   excerpt: z.string().optional().describe('The excerpt for the post'),
-  author: z.number().optional().describe('The ID for the author of the post'),
-  categories: z.array(z.number()).optional().describe('The terms assigned to the post in the category taxonomy'),
-  tags: z.array(z.number()).optional().describe('The terms assigned to the post in the post_tag taxonomy'),
-  featured_media: z.number().optional().describe('The ID of the featured media for the post'),
+  author: z.coerce.number().optional().describe('The ID for the author of the post'),
+  categories: z.array(z.coerce.number()).optional().describe('The terms assigned to the post in the category taxonomy'),
+  tags: z.array(z.coerce.number()).optional().describe('The terms assigned to the post in the post_tag taxonomy'),
+  featured_media: z.coerce.number().optional().describe('The ID of the featured media for the post'),
   format: z.enum(['standard', 'aside', 'chat', 'gallery', 'link', 'image', 'quote', 'status', 'video', 'audio']).optional().describe('The format for the post'),
   slug: z.string().optional().describe('An alphanumeric identifier for the post unique to its type'),
 }).strict();
 
 const updatePostSchema = z.object({
-  id: z.number().describe('Unique identifier for the post'),
+  id: z.coerce.number().describe('Unique identifier for the post'),
   title: z.string().optional().describe('The title for the post'),
   content: z.string().optional().describe('The content for the post'),
   status: z.enum(['publish', 'future', 'draft', 'pending', 'private']).optional().describe('Post status'),
   excerpt: z.string().optional().describe('The excerpt for the post'),
-  author: z.number().optional().describe('The ID for the author of the post'),
-  categories: z.array(z.number()).optional().describe('The terms assigned to the post in the category taxonomy'),
-  tags: z.array(z.number()).optional().describe('The terms assigned to the post in the post_tag taxonomy'),
-  featured_media: z.number().optional().describe('The ID of the featured media for the post'),
+  author: z.coerce.number().optional().describe('The ID for the author of the post'),
+  categories: z.array(z.coerce.number()).optional().describe('The terms assigned to the post in the category taxonomy'),
+  tags: z.array(z.coerce.number()).optional().describe('The terms assigned to the post in the post_tag taxonomy'),
+  featured_media: z.coerce.number().optional().describe('The ID of the featured media for the post'),
   format: z.enum(['standard', 'aside', 'chat', 'gallery', 'link', 'image', 'quote', 'status', 'video', 'audio']).optional().describe('The format for the post'),
   slug: z.string().optional().describe('An alphanumeric identifier for the post unique to its type'),
 }).strict();
 
 const deletePostSchema = z.object({
-  id: z.number().describe('Unique identifier for the post'),
+  id: z.coerce.number().describe('Unique identifier for the post'),
   force: z.boolean().optional().describe('Whether to bypass Trash and force deletion'),
 }).strict();
 

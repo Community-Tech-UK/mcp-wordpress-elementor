@@ -5,27 +5,27 @@ import { makeWordPressRequest } from '../wordpress.js';
 
 // Zod schemas
 const getElementorDataSchema = z.object({
-  post_id: z.number(),
+  post_id: z.coerce.number(),
 });
 
 const updateElementorDataSchema = z.object({
-  post_id: z.number(),
+  post_id: z.coerce.number(),
   elementor_data: z.string(),
 });
 
 const getElementorDataChunkedSchema = z.object({
-  post_id: z.number(),
-  chunk_size: z.number().optional(),
-  chunk_index: z.number().optional(),
+  post_id: z.coerce.number(),
+  chunk_size: z.coerce.number().optional(),
+  chunk_index: z.coerce.number().optional(),
 });
 
 const backupElementorDataSchema = z.object({
-  post_id: z.number(),
+  post_id: z.coerce.number(),
   backup_name: z.string().optional(),
 });
 
 const getElementorTemplatesSchema = z.object({
-  per_page: z.number().optional(),
+  per_page: z.coerce.number().optional(),
   type: z.string().optional(),
 });
 

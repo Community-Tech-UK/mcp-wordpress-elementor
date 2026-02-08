@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { CommunityTechClient } from '../utils/communitytech-client.js';
-import { getBaseUrl, getWpClient, makeWordPressRequest } from '../wordpress.js';
+import { getBaseUrl, getWpClient, makeWordPressRequest, registerCtInvalidation } from '../wordpress.js';
 import { toolSuccess, toolError } from '../types/elementor-types.js';
 
 // Lazy-init client
@@ -11,6 +11,9 @@ function getClient(): CommunityTechClient {
   }
   return ctClient;
 }
+
+// Invalidate cached client when active site changes
+registerCtInvalidation(() => { ctClient = null; });
 
 // Schema definitions
 const getKitSettingsSchema = z.object({});
@@ -38,11 +41,11 @@ const updateThemeStyleSchema = z.object({
 const getCssVariablesSchema = z.object({});
 
 const clearCacheByPageSchema = z.object({
-  post_id: z.number(),
+  post_id: z.coerce.number(),
 });
 
 const regenerateCssSchema = z.object({
-  post_id: z.number(),
+  post_id: z.coerce.number(),
 });
 
 const listWidgetsSchema = z.object({});

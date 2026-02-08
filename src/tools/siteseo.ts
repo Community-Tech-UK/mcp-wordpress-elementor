@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { CommunityTechClient } from '../utils/communitytech-client.js';
-import { getBaseUrl, getWpClient } from '../wordpress.js';
+import { getBaseUrl, getWpClient, registerCtInvalidation } from '../wordpress.js';
 import { toolSuccess, toolError } from '../types/elementor-types.js';
 
 // Lazy-init client
@@ -12,13 +12,16 @@ function getClient(): CommunityTechClient {
   return ctClient;
 }
 
+// Invalidate cached client when active site changes
+registerCtInvalidation(() => { ctClient = null; });
+
 // Schema definitions
 const getSeoMetadataSchema = z.object({
-  post_id: z.number(),
+  post_id: z.coerce.number(),
 });
 
 const updateSeoMetadataSchema = z.object({
-  post_id: z.number(),
+  post_id: z.coerce.number(),
   title: z.string().optional(),
   description: z.string().optional(),
   target_keywords: z.string().optional(),
@@ -35,8 +38,8 @@ const updateSeoMetadataSchema = z.object({
 
 const auditSeoSchema = z.object({
   post_type: z.string().optional(),
-  per_page: z.number().optional(),
-  page: z.number().optional(),
+  per_page: z.coerce.number().optional(),
+  page: z.coerce.number().optional(),
 });
 
 const getSeoSettingsSchema = z.object({});

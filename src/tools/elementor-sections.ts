@@ -5,32 +5,32 @@ import { generateElementId, reassignElementIds } from '../utils/id-generator.js'
 import { toolSuccess, toolError } from '../types/elementor-types.js';
 
 const createSectionSchema = z.object({
-  post_id: z.number(),
-  position: z.number().optional(),
-  columns: z.number().default(1),
+  post_id: z.coerce.number(),
+  position: z.coerce.number().optional(),
+  columns: z.coerce.number().default(1),
   section_settings: z.record(z.any()).optional(),
 });
 
 const createContainerSchema = z.object({
-  post_id: z.number(),
-  position: z.number().optional(),
+  post_id: z.coerce.number(),
+  position: z.coerce.number().optional(),
   container_settings: z.record(z.any()).optional(),
 });
 
 const addColumnSchema = z.object({
-  post_id: z.number(),
+  post_id: z.coerce.number(),
   section_id: z.string(),
-  columns_to_add: z.number().default(1),
+  columns_to_add: z.coerce.number().default(1),
 });
 
 const duplicateSectionSchema = z.object({
-  post_id: z.number(),
+  post_id: z.coerce.number(),
   section_id: z.string(),
-  position: z.number().optional(),
+  position: z.coerce.number().optional(),
 });
 
 const reorderSectionsSchema = z.object({
-  post_id: z.number(),
+  post_id: z.coerce.number(),
   section_ids: z.array(z.string()),
 });
 

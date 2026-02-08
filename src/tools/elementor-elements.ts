@@ -4,25 +4,25 @@ import { findElementById, findElementParent, filterElements } from '../utils/ele
 import { toolSuccess, toolError } from '../types/elementor-types.js';
 
 const deleteElementSchema = z.object({
-  post_id: z.number(),
+  post_id: z.coerce.number(),
   element_id: z.string(),
 });
 
 const reorderElementsSchema = z.object({
-  post_id: z.number(),
+  post_id: z.coerce.number(),
   container_id: z.string(),
   element_ids: z.array(z.string()),
 });
 
 const copySettingsSchema = z.object({
-  post_id: z.number(),
+  post_id: z.coerce.number(),
   source_element_id: z.string(),
   target_element_id: z.string(),
   settings_to_copy: z.array(z.string()).optional(),
 });
 
 const findByTypeSchema = z.object({
-  post_id: z.number(),
+  post_id: z.coerce.number(),
   widget_type: z.string(),
   include_settings: z.boolean().default(false),
 });

@@ -5,8 +5,8 @@ import * as path from 'path';
 
 // Zod schemas
 const listMediaSchema = z.object({
-  page: z.number().optional().describe('Page number of the collection'),
-  per_page: z.number().min(1).max(100).optional().describe('Maximum number of items to return (1-100)'),
+  page: z.coerce.number().optional().describe('Page number of the collection'),
+  per_page: z.coerce.number().min(1).max(100).optional().describe('Maximum number of items to return (1-100)'),
   search: z.string().optional().describe('Limit results to those matching a string'),
 }).strict();
 
@@ -19,7 +19,7 @@ const createMediaSchema = z.object({
 }).strict();
 
 const editMediaSchema = z.object({
-  id: z.number().describe('Unique identifier for the media'),
+  id: z.coerce.number().describe('Unique identifier for the media'),
   title: z.string().optional().describe('The title for the media'),
   alt_text: z.string().optional().describe('Alternative text to display when media is not displayed'),
   caption: z.string().optional().describe('The caption for the media'),
@@ -27,7 +27,7 @@ const editMediaSchema = z.object({
 }).strict();
 
 const deleteMediaSchema = z.object({
-  id: z.number().describe('Unique identifier for the media'),
+  id: z.coerce.number().describe('Unique identifier for the media'),
   force: z.boolean().optional().describe('Whether to bypass Trash and force deletion'),
 }).strict();
 

@@ -5,8 +5,8 @@ import axios from 'axios';
 // Zod schemas
 const searchPluginRepositorySchema = z.object({
   search: z.string().describe('Search term to find plugins in WordPress.org repository'),
-  page: z.number().min(1).optional().default(1).describe('Page number of the results'),
-  per_page: z.number().min(1).max(100).optional().default(10).describe('Maximum number of results to return per page (1-100)'),
+  page: z.coerce.number().min(1).optional().default(1).describe('Page number of the results'),
+  per_page: z.coerce.number().min(1).max(100).optional().default(10).describe('Maximum number of results to return per page (1-100)'),
 }).strict();
 
 const getPluginDetailsSchema = z.object({

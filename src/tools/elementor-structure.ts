@@ -5,12 +5,12 @@ import { toolSuccess, toolError, ElementorElement } from '../types/elementor-typ
 
 // Zod schemas
 const getPageStructureSchema = z.object({
-  post_id: z.number(),
+  post_id: z.coerce.number(),
   include_settings: z.boolean().optional(),
 });
 
 const getElementorElementsSchema = z.object({
-  post_id: z.number(),
+  post_id: z.coerce.number(),
   include_content: z.boolean().optional(),
 });
 

@@ -1,4 +1,5 @@
 import { getFeatureFlags } from '../config/feature-flags.js';
+import { hasMultiSiteConfig } from '../wordpress.js';
 
 // WordPress CRUD tools
 import { postsTools, postsHandlers } from './posts.js';
@@ -22,6 +23,9 @@ import { elementorGlobalSettingsTools, elementorGlobalSettingsHandlers } from '.
 
 // SiteSEO (CommunityTech)
 import { siteseoTools, siteseoHandlers } from './siteseo.js';
+
+// Multi-site management
+import { sitesTools, sitesHandlers } from './sites.js';
 
 function buildToolRegistry() {
   const flags = getFeatureFlags();
@@ -62,6 +66,11 @@ function buildToolRegistry() {
   // SiteSEO (CommunityTech plugin)
   if (flags.siteseo) {
     register(siteseoTools, siteseoHandlers);
+  }
+
+  // Multi-site management (only when configured)
+  if (hasMultiSiteConfig()) {
+    register(sitesTools, sitesHandlers);
   }
 
   return { tools, handlers };
