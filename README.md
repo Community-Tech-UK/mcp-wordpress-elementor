@@ -10,61 +10,48 @@ A unified Model Context Protocol (MCP) server for WordPress content management a
 - **Full TypeScript**: Type-safe tool definitions and handlers
 - **Modular Architecture**: Clean separation of concerns across 14 tool modules
 
-## Requirements
+## Installation
+
+### Prerequisites
 
 - Node.js >= 18
-- WordPress site with REST API enabled
-- Application Password for authentication
-- Elementor plugin (for page building tools)
-- CommunityTech plugin (for global settings tools)
+- A WordPress site with REST API enabled
+- An Application Password for authentication (see below)
+- Elementor plugin installed (for page building tools)
+- [CommunityTech plugin](https://github.com/Community-Tech-UK/communitytech-plugin) installed (for global settings tools)
 
-## Quick Start
+### 1. Clone and build
 
 ```bash
+git clone https://github.com/Community-Tech-UK/mcp-wordpress-elementor.git
+cd mcp-wordpress-elementor
 npm install
 npm run build
 ```
 
-## Configuration
+### 2. Create a WordPress Application Password
 
-### Environment Variables
+1. Go to **WordPress Admin > Users > Profile**
+2. Scroll to **Application Passwords**
+3. Enter a name (e.g. "Claude Code MCP")
+4. Click **Add New Application Password**
+5. Copy the password immediately — it won't be shown again
 
-Create a `.env` file based on `.env.example`:
+### 3. Configure your MCP client
 
-```env
-WORDPRESS_API_URL=https://your-site.com
-WORDPRESS_USERNAME=admin
-WORDPRESS_PASSWORD=xxxx xxxx xxxx xxxx xxxx xxxx
-```
+#### Claude Code
 
-**Supported Variable Names:**
-- `WORDPRESS_API_URL` or `WORDPRESS_BASE_URL` - Your WordPress site URL
-- `WORDPRESS_USERNAME` - WordPress username
-- `WORDPRESS_PASSWORD`, `WORDPRESS_APP_PASSWORD`, or `WORDPRESS_APPLICATION_PASSWORD` - Application password
-
-### Creating Application Passwords
-
-1. Go to WordPress Admin > Users > Profile
-2. Scroll to "Application Passwords" section
-3. Enter a name (e.g., "Claude Code MCP")
-4. Click "Add New Application Password"
-5. Copy the generated password immediately (it won't be shown again)
-
-## MCP Client Configuration
-
-### Claude Code
-
-Add to your `.mcp.json`:
+Create or edit `.mcp.json` in your project directory:
 
 ```json
 {
   "mcpServers": {
     "wordpress": {
       "command": "node",
-      "args": ["/path/to/mcp-wordpress-elementor/build/server.js"],
+      "args": ["/absolute/path/to/mcp-wordpress-elementor/build/cli.js"],
       "env": {
         "WORDPRESS_API_URL": "https://your-site.com",
-        "WORDPRESS_USERNAME": "admin",
+        "WORDPRESS_USERNAME": "your-username",
         "WORDPRESS_PASSWORD": "xxxx xxxx xxxx xxxx xxxx xxxx"
       }
     }
@@ -72,9 +59,60 @@ Add to your `.mcp.json`:
 }
 ```
 
-### Other MCP Clients
+Then open Claude Code from the directory containing `.mcp.json`. The WordPress tools will be available automatically.
 
-The server implements the standard MCP protocol and should work with any MCP-compatible client. Adjust the configuration format according to your client's requirements.
+#### Other MCP Clients
+
+The server implements the standard MCP protocol via stdio. Point your client at `build/cli.js` and pass the three environment variables above.
+
+### 4. Install the CommunityTech plugin (optional but recommended)
+
+The 11 global settings tools (colors, fonts, theme style, CSS regeneration, widget registry) require the [CommunityTech plugin](https://github.com/Community-Tech-UK/communitytech-plugin) on your WordPress site.
+
+1. Download the [latest release](https://github.com/Community-Tech-UK/communitytech-plugin/releases)
+2. **WordPress Admin > Plugins > Add New > Upload Plugin** — upload the zip
+3. Activate the plugin
+
+Without it, the 60 WordPress + Elementor page building tools still work fine.
+
+### Multiple Sites
+
+Add separate entries to `.mcp.json` with different server names:
+
+```json
+{
+  "mcpServers": {
+    "site-one": {
+      "command": "node",
+      "args": ["/path/to/mcp-wordpress-elementor/build/cli.js"],
+      "env": {
+        "WORDPRESS_API_URL": "https://site-one.com",
+        "WORDPRESS_USERNAME": "admin",
+        "WORDPRESS_PASSWORD": "xxxx xxxx xxxx xxxx"
+      }
+    },
+    "site-two": {
+      "command": "node",
+      "args": ["/path/to/mcp-wordpress-elementor/build/cli.js"],
+      "env": {
+        "WORDPRESS_API_URL": "https://site-two.com",
+        "WORDPRESS_USERNAME": "admin",
+        "WORDPRESS_PASSWORD": "yyyy yyyy yyyy yyyy"
+      }
+    }
+  }
+}
+```
+
+### Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `WORDPRESS_API_URL` | Yes | Your WordPress site URL |
+| `WORDPRESS_USERNAME` | Yes | WordPress username |
+| `WORDPRESS_PASSWORD` | Yes | Application password (also accepts `WORDPRESS_APP_PASSWORD`) |
+| `DISABLE_ELEMENTOR` | No | Set `true` to disable 24 page building tools |
+| `DISABLE_ELEMENTOR_GLOBAL_SETTINGS` | No | Set `true` to disable 11 global settings tools |
 
 ## Tool Inventory
 
@@ -192,28 +230,6 @@ The server implements the standard MCP protocol and should work with any MCP-com
 - `clear_elementor_cache_by_page` - Clear page cache
 - `regenerate_elementor_css` - Rebuild CSS files
 - `list_available_widgets` - List registered widget types
-
-## Feature Flags
-
-Control which tools are loaded via environment variables:
-
-```env
-DISABLE_ELEMENTOR=true                    # Disables 24 page building tools
-DISABLE_ELEMENTOR_GLOBAL_SETTINGS=true   # Disables 11 global settings tools
-```
-
-WordPress tools are always enabled.
-
-## CommunityTech Plugin
-
-The Elementor global settings tools require the CommunityTech WordPress plugin (located in `../communitytech-plugin/`). This plugin exposes REST API endpoints for Elementor's internal PHP APIs, enabling:
-
-- Global color and font management
-- Theme style configuration
-- CSS regeneration
-- Widget registry access
-
-Without this plugin, the 11 global settings tools will not function.
 
 ## Development
 
