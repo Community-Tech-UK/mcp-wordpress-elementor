@@ -66,4 +66,28 @@ export class CommunityTechClient {
   async getCssVariables(): Promise<any> {
     return this.request('get', 'elementor/kit/css-variables');
   }
+
+  // ----- SiteSEO -----
+
+  async getSeoForPost(postId: number): Promise<any> {
+    return this.request('get', `siteseo/post/${postId}`);
+  }
+
+  async updateSeoForPost(postId: number, data: Record<string, any>): Promise<any> {
+    return this.request('post', `siteseo/post/${postId}`, data);
+  }
+
+  async getSeoAudit(params?: { post_type?: string; per_page?: number; page?: number; status?: string }): Promise<any> {
+    const query = new URLSearchParams();
+    if (params?.post_type) query.set('post_type', params.post_type);
+    if (params?.per_page) query.set('per_page', String(params.per_page));
+    if (params?.page) query.set('page', String(params.page));
+    if (params?.status) query.set('status', params.status);
+    const qs = query.toString();
+    return this.request('get', `siteseo/audit${qs ? `?${qs}` : ''}`);
+  }
+
+  async getSeoSettings(): Promise<any> {
+    return this.request('get', 'siteseo/settings');
+  }
 }

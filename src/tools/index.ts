@@ -20,6 +20,9 @@ import { elementorWidgetsTools, elementorWidgetsHandlers } from './elementor-wid
 // Elementor global settings (CommunityTech)
 import { elementorGlobalSettingsTools, elementorGlobalSettingsHandlers } from './elementor-global-settings.js';
 
+// SiteSEO (CommunityTech)
+import { siteseoTools, siteseoHandlers } from './siteseo.js';
+
 function buildToolRegistry() {
   const flags = getFeatureFlags();
   const tools: any[] = [];
@@ -54,6 +57,11 @@ function buildToolRegistry() {
   // Elementor global settings (CommunityTech plugin)
   if (flags.elementor_global_settings) {
     register(elementorGlobalSettingsTools, elementorGlobalSettingsHandlers);
+  }
+
+  // SiteSEO (CommunityTech plugin)
+  if (flags.siteseo) {
+    register(siteseoTools, siteseoHandlers);
   }
 
   return { tools, handlers };

@@ -5,6 +5,8 @@ export interface FeatureFlags {
   elementor: boolean;
   /** CommunityTech plugin integration (global colors, fonts, theme style, kit settings). */
   elementor_global_settings: boolean;
+  /** SiteSEO integration (SEO metadata, audit, settings). */
+  siteseo: boolean;
 }
 
 export function getFeatureFlags(): FeatureFlags {
@@ -14,6 +16,7 @@ export function getFeatureFlags(): FeatureFlags {
     elementor_global_settings: envBool('DISABLE_ELEMENTOR_GLOBAL_SETTINGS')
       ? false
       : true,
+    siteseo: envBool('DISABLE_SITESEO') ? false : true,
   };
 }
 
