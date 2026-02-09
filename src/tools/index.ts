@@ -10,6 +10,7 @@ import { mediaTools, mediaHandlers } from './media.js';
 import { usersTools, usersHandlers } from './users.js';
 import { pluginsTools, pluginsHandlers } from './plugins.js';
 import { pluginRepositoryTools, pluginRepositoryHandlers } from './plugin-repository.js';
+import { menusTools, menusHandlers } from './menus.js';
 
 // Elementor tools
 import { elementorDataTools, elementorDataHandlers } from './elementor-data.js';
@@ -47,6 +48,7 @@ function buildToolRegistry() {
     register(usersTools, usersHandlers);
     register(pluginsTools, pluginsHandlers);
     register(pluginRepositoryTools, pluginRepositoryHandlers);
+    register(menusTools, menusHandlers);
   }
 
   // Elementor page-building
