@@ -67,6 +67,12 @@ export class CommunityTechClient {
     return this.request('get', 'elementor/kit/css-variables');
   }
 
+  // ----- Elementor Render -----
+
+  async rebuildRender(postId: number): Promise<any> {
+    return this.request('post', 'elementor/render/rebuild', { post_id: postId });
+  }
+
   // ----- SiteSEO -----
 
   async getSeoForPost(postId: number): Promise<any> {

@@ -48,6 +48,10 @@ const regenerateCssSchema = z.object({
   post_id: z.coerce.number(),
 });
 
+const rebuildRenderSchema = z.object({
+  post_id: z.coerce.number(),
+});
+
 const listWidgetsSchema = z.object({});
 
 // Tool definitions
@@ -132,6 +136,15 @@ export const elementorGlobalSettingsTools = [
     inputSchema: {
       type: 'object' as const,
       properties: regenerateCssSchema.shape,
+      required: ['post_id'],
+    },
+  },
+  {
+    name: 'rebuild_elementor_render',
+    description: 'Force Elementor to rebuild the rendered HTML for a page/post. Call this after updating Elementor data via update_elementor_data to make changes appear on the frontend. This triggers Elementor\'s full save pipeline: processes elements, regenerates post_content HTML, rebuilds CSS, and fires all save hooks. Replaces the need to open the Elementor editor and run elementor.saver.defaultSave() manually.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: rebuildRenderSchema.shape,
       required: ['post_id'],
     },
   },
@@ -337,6 +350,20 @@ export const elementorGlobalSettingsHandlers: Record<string, (params: any) => Pr
         return toolError('CommunityTech plugin endpoint not found. Is the plugin installed and activated?');
       }
       return toolError(`Error regenerating CSS: ${message}`);
+    }
+  },
+
+  rebuild_elementor_render: async (params) => {
+    try {
+      const { post_id } = params;
+      const result = await getClient().rebuildRender(post_id);
+      return toolSuccess({
+        message: 'Elementor render rebuilt successfully',
+        post_id,
+        ...result,
+      });
+    } catch (error: any) {
+      return toolError(`Error rebuilding Elementor render: ${error.message}`);
     }
   },
 

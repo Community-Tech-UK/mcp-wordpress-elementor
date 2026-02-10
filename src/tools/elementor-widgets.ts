@@ -54,11 +54,12 @@ const getWidgetSchema = z.object({
 const updateSectionSchema = z.object({
   post_id: z.coerce.number(),
   section_id: z.string(),
+  section_settings: z.record(z.any()).optional(),
   widgets_updates: z.array(z.object({
     widget_id: z.string(),
     widget_settings: z.record(z.any()).optional(),
     widget_content: z.string().optional(),
-  })),
+  })).optional(),
 });
 
 const getWidgetContentSchema = z.object({
@@ -189,11 +190,11 @@ export const elementorWidgetsTools = [
   },
   {
     name: 'update_elementor_section',
-    description: 'Batch update multiple widgets within a section. Provide an array of widget updates with widget_id and settings/content changes.',
+    description: 'Update a section/container and optionally its child widgets. Use section_settings to update the container itself (background, padding, flex, width, etc). Use widgets_updates to batch update widgets within it.',
     inputSchema: {
       type: 'object' as const,
       properties: updateSectionSchema.shape,
-      required: ['post_id', 'section_id', 'widgets_updates'],
+      required: ['post_id', 'section_id'],
     },
   },
   {
@@ -519,7 +520,7 @@ export const elementorWidgetsHandlers: Record<string, (params: any) => Promise<a
 
   update_elementor_section: async (params) => {
     try {
-      const { post_id, section_id, widgets_updates } = params;
+      const { post_id, section_id, section_settings, widgets_updates } = params;
 
       const result = await withElementorData(post_id, (elements) => {
         const section = findElementById(elements, section_id);
@@ -528,43 +529,55 @@ export const elementorWidgetsHandlers: Record<string, (params: any) => Promise<a
         }
 
         const results = {
+          section_updated: false,
+          updated_section_settings: [] as string[],
           updated: [] as string[],
           not_found: [] as string[],
         };
 
-        for (const update of widgets_updates) {
-          const widget = findElementInSubtree(section, update.widget_id);
-          if (!widget) {
-            results.not_found.push(update.widget_id);
-            continue;
-          }
+        // Update the section/container's own settings
+        if (section_settings) {
+          section.settings = { ...section.settings, ...section_settings };
+          results.section_updated = true;
+          results.updated_section_settings = Object.keys(section_settings);
+        }
 
-          if (update.widget_settings) {
-            widget.settings = { ...widget.settings, ...update.widget_settings };
-          }
+        // Update child widgets
+        if (widgets_updates) {
+          for (const update of widgets_updates) {
+            const widget = findElementInSubtree(section, update.widget_id);
+            if (!widget) {
+              results.not_found.push(update.widget_id);
+              continue;
+            }
 
-          if (update.widget_content !== undefined) {
-            const contentSet = setWidgetContent(widget, update.widget_content);
-            if (!contentSet) {
-              const widgetType = widget.widgetType || '';
-              if (widgetType === 'html') {
-                widget.settings.html = update.widget_content;
-              } else if (widgetType === 'text-editor') {
-                widget.settings.editor = update.widget_content;
-              } else if (widgetType === 'heading') {
-                widget.settings.title = update.widget_content;
+            if (update.widget_settings) {
+              widget.settings = { ...widget.settings, ...update.widget_settings };
+            }
+
+            if (update.widget_content !== undefined) {
+              const contentSet = setWidgetContent(widget, update.widget_content);
+              if (!contentSet) {
+                const widgetType = widget.widgetType || '';
+                if (widgetType === 'html') {
+                  widget.settings.html = update.widget_content;
+                } else if (widgetType === 'text-editor') {
+                  widget.settings.editor = update.widget_content;
+                } else if (widgetType === 'heading') {
+                  widget.settings.title = update.widget_content;
+                }
               }
             }
-          }
 
-          results.updated.push(update.widget_id);
+            results.updated.push(update.widget_id);
+          }
         }
 
         return results;
       });
       return toolSuccess(result);
     } catch (error: any) {
-      return toolError(`Error updating section widgets: ${error.message}`);
+      return toolError(`Error updating section: ${error.message}`);
     }
   },
 
