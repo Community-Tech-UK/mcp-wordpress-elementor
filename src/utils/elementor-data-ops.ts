@@ -13,11 +13,11 @@ function parseElementorResponse(text: string): ElementorElement[] {
   return JSON.parse(jsonPart);
 }
 
-/** Fetch and parse _elementor_data for a post/page. */
+/** Fetch and parse _elementor_data for a post/page/template. */
 export async function fetchElementorData(
   postId: number
 ): Promise<ElementorElement[]> {
-  // Try as post first, fall back to page
+  // Try as post first, fall back to page, then elementor_library template
   let response: any;
   try {
     response = await makeWordPressRequest('GET', `posts/${postId}`, { context: 'edit' }, { rawResponse: true });
@@ -25,7 +25,11 @@ export async function fetchElementorData(
     try {
       response = await makeWordPressRequest('GET', `pages/${postId}`, { context: 'edit' }, { rawResponse: true });
     } catch {
-      throw new Error(`Could not find post or page with ID ${postId}`);
+      try {
+        response = await makeWordPressRequest('GET', `elementor_library/${postId}`, { context: 'edit' }, { rawResponse: true });
+      } catch {
+        throw new Error(`Could not find post, page, or template with ID ${postId}`);
+      }
     }
   }
 
@@ -48,21 +52,25 @@ export async function fetchElementorData(
   return elementorDataRaw as ElementorElement[];
 }
 
-/** Save _elementor_data back to a post/page. */
+/** Save _elementor_data back to a post/page/template. */
 export async function saveElementorData(
   postId: number,
   data: ElementorElement[]
 ): Promise<void> {
   const payload = { meta: { _elementor_data: JSON.stringify(data) } };
 
-  // Try as post first, fall back to page
+  // Try as post first, fall back to page, then elementor_library template
   try {
     await makeWordPressRequest('POST', `posts/${postId}`, payload);
   } catch {
     try {
       await makeWordPressRequest('POST', `pages/${postId}`, payload);
     } catch {
-      throw new Error(`Failed to save Elementor data for post/page ${postId}`);
+      try {
+        await makeWordPressRequest('POST', `elementor_library/${postId}`, payload);
+      } catch {
+        throw new Error(`Failed to save Elementor data for post/page/template ${postId}`);
+      }
     }
   }
 }
