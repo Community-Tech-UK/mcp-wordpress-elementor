@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "mcp-wordpress-elementor": {
+      "command": "node",
+      "args": [
+        "build/server.js"
+      ],
+      "env": {
+        "WORDPRESS_SITES_FILE": "sites.json"
+      }
+    }
+  }
+}
