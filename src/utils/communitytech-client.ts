@@ -96,4 +96,13 @@ export class CommunityTechClient {
   async getSeoSettings(): Promise<any> {
     return this.request('get', 'siteseo/settings');
   }
+
+  async updateSeoSettings(data: {
+    titles?: Record<string, any>;
+    social?: Record<string, any>;
+    toggle?: Record<string, any>;
+    xml_sitemap?: Record<string, any>;
+  }): Promise<any> {
+    return this.request('post', 'siteseo/settings', data);
+  }
 }

@@ -20,7 +20,7 @@ This guide covers migrating from the old dual-server setup to the new unified `m
 ### New Setup Benefits
 
 **Single unified server** with:
-- All 71 tools in one place (no more conflicts)
+- All 82 tools in one place (no more conflicts)
 - Modular architecture (14 separate tool files instead of one monolith)
 - Better type safety (Zod validation on all inputs)
 - New features (`regenerate_elementor_css`, `list_available_widgets`)
@@ -93,7 +93,7 @@ ls build/index.js
 ### Step 3: Verify Installation
 
 1. Restart Claude Code or Claude Desktop
-2. Check available tools (should see all 71 tools)
+2. Check available tools (should see all 82 tools)
 3. Test a basic operation:
    - WordPress: `list_posts` with `per_page: 1`
    - Elementor: `list_elementor_pages` with `per_page: 1`

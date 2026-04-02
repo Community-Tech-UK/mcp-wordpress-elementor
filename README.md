@@ -1,12 +1,13 @@
 # mcp-wordpress-elementor
 
-A unified Model Context Protocol (MCP) server for WordPress content management and Elementor page building. This server merges WordPress CRUD operations with comprehensive Elementor visual editing capabilities, providing 71 tools for AI-assisted website management.
+A unified Model Context Protocol (MCP) server for WordPress content management and Elementor page building. This server merges WordPress CRUD operations with comprehensive Elementor visual editing capabilities, providing 82 tools for AI-assisted website management.
 
 ## Features
 
-- **36 WordPress Content Tools**: Manage posts, pages, categories, comments, media, users, and plugins
+- **41 WordPress Content Tools**: Manage posts, pages, categories, comments, media, users, plugins, and menus
 - **24 Elementor Page Building Tools**: Create and manipulate sections, containers, widgets, and page structure
-- **11 Global Settings Tools**: Control Elementor theme colors, fonts, and CSS (requires CommunityTech plugin)
+- **12 Global Settings Tools**: Control Elementor theme colors, fonts, CSS, and render rebuilds (requires CommunityTech plugin)
+- **5 SiteSEO Tools**: Read and update SEO metadata, run audits, and manage global SiteSEO settings
 - **Full TypeScript**: Type-safe tool definitions and handlers
 - **Modular Architecture**: Clean separation of concerns across 14 tool modules
 
@@ -137,7 +138,7 @@ If neither `WORDPRESS_SITES_FILE` nor `WORDPRESS_SITES` is set, the server falls
 
 ## Tool Inventory
 
-### WordPress Content (36 tools)
+### WordPress Content (41 tools)
 
 **Posts**
 - `list_posts` - List posts with filters
@@ -191,6 +192,13 @@ If neither `WORDPRESS_SITES_FILE` nor `WORDPRESS_SITES` is set, the server falls
 - `search_plugin_repository` - Search WordPress.org plugins
 - `get_plugin_details` - Get plugin info from repository
 
+**Menus**
+- `list_menus` - List navigation menus
+- `list_menu_items` - List items in a menu
+- `create_menu_item` - Create a new menu item
+- `update_menu_item` - Update an existing menu item
+- `delete_menu_item` - Delete a menu item
+
 ### Elementor Page Building (24 tools)
 
 **Data Management**
@@ -227,7 +235,7 @@ If neither `WORDPRESS_SITES_FILE` nor `WORDPRESS_SITES` is set, the server falls
 - `update_elementor_section` - Update section settings
 - `get_widget_content` - Get rendered widget HTML
 
-### Elementor Global Settings (11 tools)
+### Elementor Global Settings (12 tools)
 
 **Requires CommunityTech WordPress plugin**
 
@@ -250,7 +258,18 @@ If neither `WORDPRESS_SITES_FILE` nor `WORDPRESS_SITES` is set, the server falls
 - `get_elementor_css_variables` - Get CSS variable definitions
 - `clear_elementor_cache_by_page` - Clear page cache
 - `regenerate_elementor_css` - Rebuild CSS files
+- `rebuild_elementor_render` - Rebuild rendered Elementor HTML after data updates
 - `list_available_widgets` - List registered widget types
+
+### SiteSEO (5 tools)
+
+**Requires CommunityTech WordPress plugin and SiteSEO**
+
+- `get_seo_metadata` - Get SEO metadata for a post or page
+- `update_seo_metadata` - Update SEO metadata for a post or page
+- `audit_seo` - Audit SEO coverage across posts and pages
+- `get_seo_settings` - Read global SiteSEO settings
+- `update_seo_settings` - Update global SiteSEO settings
 
 ## Development
 

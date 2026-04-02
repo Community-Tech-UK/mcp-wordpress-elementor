@@ -6,6 +6,8 @@ vi.mock('../../wordpress.js', () => ({
   initWordPress: vi.fn(),
   getBaseUrl: vi.fn(() => 'https://example.com'),
   getWpClient: vi.fn(() => ({ get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() })),
+  registerCtInvalidation: vi.fn(),
+  hasMultiSiteConfig: vi.fn(() => false),
   searchWordPressPluginRepository: vi.fn(),
   logToFile: vi.fn(),
 }));
@@ -29,10 +31,10 @@ describe('MCP Server Smoke Test', () => {
   });
 
   describe('Tool count', () => {
-    it('should have exactly 71 tools registered', async () => {
+    it('should have exactly 82 tools registered', async () => {
       const { allTools } = await import('../../tools/index.js');
 
-      expect(allTools.length).toBe(71);
+      expect(allTools.length).toBe(82);
     });
   });
 
@@ -59,7 +61,7 @@ describe('MCP Server Smoke Test', () => {
   });
 
   describe('Tool categories', () => {
-    it('should include all 36 WordPress tools', async () => {
+    it('should include all 41 WordPress tools', async () => {
       const { allTools } = await import('../../tools/index.js');
 
       const expectedWordPressTools = [
@@ -99,6 +101,11 @@ describe('MCP Server Smoke Test', () => {
         'create_plugin',
         'search_plugin_repository',
         'get_plugin_details',
+        'list_menus',
+        'list_menu_items',
+        'create_menu_item',
+        'update_menu_item',
+        'delete_menu_item',
       ];
 
       const toolNames = allTools.map(tool => tool.name);
@@ -107,7 +114,7 @@ describe('MCP Server Smoke Test', () => {
         expect(toolNames).toContain(expectedTool);
       }
 
-      expect(expectedWordPressTools.length).toBe(36);
+      expect(expectedWordPressTools.length).toBe(41);
     });
 
     it('should include all 24 Elementor tools', async () => {
@@ -149,7 +156,7 @@ describe('MCP Server Smoke Test', () => {
       expect(expectedElementorTools.length).toBe(24);
     });
 
-    it('should include all 11 Global Settings tools', async () => {
+    it('should include all 12 Global Settings tools', async () => {
       const { allTools } = await import('../../tools/index.js');
 
       const expectedGlobalSettingsTools = [
@@ -163,6 +170,7 @@ describe('MCP Server Smoke Test', () => {
         'get_elementor_css_variables',
         'clear_elementor_cache_by_page',
         'regenerate_elementor_css',
+        'rebuild_elementor_render',
         'list_available_widgets',
       ];
 
@@ -172,11 +180,31 @@ describe('MCP Server Smoke Test', () => {
         expect(toolNames).toContain(expectedTool);
       }
 
-      expect(expectedGlobalSettingsTools.length).toBe(11);
+      expect(expectedGlobalSettingsTools.length).toBe(12);
     });
 
-    it('should have 36 + 24 + 11 = 71 tools total', () => {
-      expect(36 + 24 + 11).toBe(71);
+    it('should include all 5 SiteSEO tools', async () => {
+      const { allTools } = await import('../../tools/index.js');
+
+      const expectedSiteSeoTools = [
+        'get_seo_metadata',
+        'update_seo_metadata',
+        'audit_seo',
+        'get_seo_settings',
+        'update_seo_settings',
+      ];
+
+      const toolNames = allTools.map(tool => tool.name);
+
+      for (const expectedTool of expectedSiteSeoTools) {
+        expect(toolNames).toContain(expectedTool);
+      }
+
+      expect(expectedSiteSeoTools.length).toBe(5);
+    });
+
+    it('should have 41 + 24 + 12 + 5 = 82 tools total', () => {
+      expect(41 + 24 + 12 + 5).toBe(82);
     });
   });
 
@@ -209,49 +237,52 @@ describe('MCP Server Smoke Test', () => {
       vi.resetModules();
     });
 
-    it('should have 47 tools when DISABLE_ELEMENTOR=true (WordPress + Global Settings)', async () => {
+    it('should have 58 tools when DISABLE_ELEMENTOR=true (WordPress + Global Settings + SiteSEO)', async () => {
       vi.doMock('../../config/feature-flags.js', () => ({
         getFeatureFlags: () => ({
           wordpress: true,
           elementor: false,
           elementor_global_settings: true,
+          siteseo: true,
         }),
       }));
 
       vi.resetModules();
       const { allTools } = await import('../../tools/index.js');
 
-      expect(allTools.length).toBe(47); // 36 WordPress + 11 Global Settings
+      expect(allTools.length).toBe(58); // 41 WordPress + 12 Global Settings + 5 SiteSEO
     });
 
-    it('should have 60 tools when DISABLE_ELEMENTOR_GLOBAL_SETTINGS=true (WordPress + Elementor)', async () => {
+    it('should have 70 tools when DISABLE_ELEMENTOR_GLOBAL_SETTINGS=true (WordPress + Elementor + SiteSEO)', async () => {
       vi.doMock('../../config/feature-flags.js', () => ({
         getFeatureFlags: () => ({
           wordpress: true,
           elementor: true,
           elementor_global_settings: false,
+          siteseo: true,
         }),
       }));
 
       vi.resetModules();
       const { allTools } = await import('../../tools/index.js');
 
-      expect(allTools.length).toBe(60); // 36 WordPress + 24 Elementor
+      expect(allTools.length).toBe(70); // 41 WordPress + 24 Elementor + 5 SiteSEO
     });
 
-    it('should have 36 tools when both Elementor flags disabled (WordPress only)', async () => {
+    it('should have 46 tools when both Elementor flags disabled (WordPress + SiteSEO only)', async () => {
       vi.doMock('../../config/feature-flags.js', () => ({
         getFeatureFlags: () => ({
           wordpress: true,
           elementor: false,
           elementor_global_settings: false,
+          siteseo: true,
         }),
       }));
 
       vi.resetModules();
       const { allTools } = await import('../../tools/index.js');
 
-      expect(allTools.length).toBe(36); // 36 WordPress only
+      expect(allTools.length).toBe(46); // 41 WordPress + 5 SiteSEO
     });
 
     it('should not include Elementor page-building tools when elementor flag is false', async () => {
@@ -260,6 +291,7 @@ describe('MCP Server Smoke Test', () => {
           wordpress: true,
           elementor: false,
           elementor_global_settings: true,
+          siteseo: true,
         }),
       }));
 
@@ -279,6 +311,7 @@ describe('MCP Server Smoke Test', () => {
           wordpress: true,
           elementor: true,
           elementor_global_settings: false,
+          siteseo: true,
         }),
       }));
 

@@ -44,6 +44,13 @@ const auditSeoSchema = z.object({
 
 const getSeoSettingsSchema = z.object({});
 
+const updateSeoSettingsSchema = z.object({
+  titles: z.record(z.any()).optional(),
+  social: z.record(z.any()).optional(),
+  toggle: z.record(z.any()).optional(),
+  xml_sitemap: z.record(z.any()).optional(),
+});
+
 // Tool definitions
 export const siteseoTools = [
   {
@@ -82,6 +89,15 @@ export const siteseoTools = [
     inputSchema: {
       type: 'object' as const,
       properties: getSeoSettingsSchema.shape,
+    },
+  },
+  {
+    name: 'update_seo_settings',
+    description:
+      'Update global SiteSEO configuration. Provide any subset of the top-level SiteSEO option groups: titles, social, toggle, or xml_sitemap. Each group is merged into the existing settings instead of replacing the whole option. Requires the CommunityTech plugin and SiteSEO to be active.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: updateSeoSettingsSchema.shape,
     },
   },
 ];
@@ -136,6 +152,27 @@ export const siteseoHandlers: Record<string, (params: any) => Promise<any>> = {
       return toolSuccess(data);
     } catch (error: any) {
       return toolError(`Error fetching SEO settings: ${error.message}`);
+    }
+  },
+
+  update_seo_settings: async (params) => {
+    try {
+      const cleanGroups: Record<string, any> = {};
+
+      for (const [key, value] of Object.entries(params)) {
+        if (value !== undefined) {
+          cleanGroups[key] = value;
+        }
+      }
+
+      if (Object.keys(cleanGroups).length === 0) {
+        return toolError('At least one SiteSEO settings group must be provided to update.');
+      }
+
+      const data = await getClient().updateSeoSettings(cleanGroups);
+      return toolSuccess(data);
+    } catch (error: any) {
+      return toolError(`Error updating SEO settings: ${error.message}`);
     }
   },
 };
